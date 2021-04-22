@@ -1,0 +1,28 @@
+name: BranchCheck
+
+on:
+  pull_request:
+      branches:
+        - main
+  workflow_dispatch:
+
+jobs:
+  BranchCheck:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: "Check Origin Branch."
+      run: |
+        
+        branch_base=${{ github.base_ref }}
+        echo "branch_base: "$branch_base
+        branch_origin=${{ github.head_ref }}
+        echo "branch_origin: "$branch_origin
+
+        if [ "$branch_origin" != "dev" ] && [ "$branch_base" == "main" ] ; then
+          echo "------------------------------------------------"
+          echo "Only DEV Branch allowed to merge at MAIN Branch."
+          echo "------------------------------------------------"
+          exit 1
+        fi
