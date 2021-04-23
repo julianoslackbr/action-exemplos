@@ -64,8 +64,9 @@ jobs:
           echo $GITHUB_SHORT_SHA
       # Build the Docker image
       - name: Build with Docker
+        
         run: |
-          
+          echo $GITHUB_SHORT_SHA
           docker build -t "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":"$GITHUB_SHORT_SHA" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF" .
