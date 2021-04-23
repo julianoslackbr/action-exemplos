@@ -61,6 +61,7 @@ jobs:
         run: |
           GITHUB_SHORT_SHA=$(echo "$GITHUB_SHA"|cut -c-5)
           export GITHUB_SHORT_SHA
+          echo $GITHUB_SHORT_SHA
       # Build the Docker image
       - name: Build with Docker
         run: |
