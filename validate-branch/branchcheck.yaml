@@ -8,6 +8,7 @@ on:
 
 jobs:
   BranchCheck:
+    name: "Clone and validate base banch origin branch"
     runs-on: ubuntu-latest
 
     steps:
