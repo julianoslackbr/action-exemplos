@@ -49,7 +49,7 @@ jobs:
       # Build the Docker image
       - name: Build with Docker
         run: |
-          echo "DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin "$DOCKER_PASSWORD"
+          echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_LOGIN" --password-stdin
           docker build -t "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":"$GITHUB_SHA" \
             --build-arg GITHUB_SHA="$GITHUB_SHA" \
             --build-arg GITHUB_REF="$GITHUB_REF" .
