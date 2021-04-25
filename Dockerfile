@@ -1,8 +1,10 @@
-FROM ruby:2.6-alpine
+FROM python:3.8-alpine3.12
 
-COPY . /app
+
+COPY main.py /app
+COPY requirements.txt /app
 WORKDIR /app
 
-RUN bundle install
+RUN pip3 install -r requirements.txt
 
-CMD ["ruby", "app.rb"]
+CMD ["python3", "main.py"]
