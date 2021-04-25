@@ -1,2 +1,3 @@
 venv/
-k8s-teste
+k8s-teste/
+app/
