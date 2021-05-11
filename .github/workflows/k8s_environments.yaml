@@ -79,7 +79,7 @@ jobs:
         - name: Run hml deployment 
           run: |
             echo "Deploy HML"
-            echo ${{DB_HOST}}
+            echo ${{hml.DB_HOST}}
   # Deploy the Docker image to the IKS cluster
       # - name: Deploy to IKS
       #   run: |
