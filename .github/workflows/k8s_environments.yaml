@@ -60,11 +60,19 @@ jobs:
         url: "http://dev.teste.teste"
       needs: build
 
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }} 
+        DB_NAME: ${{ secrets.DB_NAME }} 
+        TESTE: 12345
+        
+
       steps:
         - name: Run dev deployment 
           run: |
             echo "Deploy DEV"
-            echo ${{ secrets.DB_HOST }}
+            echo ${{ DB_HOST }}
+            echo ${{ DB_NAME }}
+            echo ${{ TESTE }}
 
     # deploy hml
     deploy-hml:
