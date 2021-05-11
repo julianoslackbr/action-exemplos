@@ -79,7 +79,8 @@ jobs:
         - name: Run hml deployment 
           run: |
             echo "Deploy HML"
-            echo ${{ secrets.DB_HOST }}
+            echo ${{ secrets.DB_HOST }} > file.txt
+            cat file.txt
   # Deploy the Docker image to the IKS cluster
       # - name: Deploy to IKS
       #   run: |
