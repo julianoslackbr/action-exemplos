@@ -70,9 +70,9 @@ jobs:
         - name: Run dev deployment 
           run: |
             echo "Deploy DEV"
-            echo ${{ DB_HOST }}
-            echo ${{ DB_NAME }}
-            echo ${{ TESTE }}
+            echo $DB_HOST
+            echo $DB_NAME
+            echo $TESTE
 
     # deploy hml
     deploy-hml:
