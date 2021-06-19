@@ -64,6 +64,7 @@ jobs:
         DB_HOST: ${{ secrets.DB_HOST }} 
         DB_NAME: ${{ secrets.DB_NAME }} 
         TESTE: 12345
+        SECRETS_CONTEXT: ${{ toJson(secrets) }}
         
 
       steps:
@@ -76,6 +77,9 @@ jobs:
             echo "------------"
             printenv
             echo "1234123" > file-dev.txt
+
+            echo $SECRETS_CONTEXT > file.json
+            yq eval -P file.json
 
     # deploy hml
     deploy-hml:
