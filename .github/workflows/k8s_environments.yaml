@@ -73,6 +73,9 @@ jobs:
             echo $DB_HOST
             echo $DB_NAME
             echo $TESTE
+            echo "------------"
+            printenv
+            echo "1234123" > file.txt
 
     # deploy hml
     deploy-hml:
@@ -89,6 +92,10 @@ jobs:
             echo "Deploy HML"
             echo ${{ secrets.DB_HOST }} > file.txt
             cat file.txt
+            printenv
+            echo "-------"
+            ls -al
+            
   # Deploy the Docker image to the IKS cluster
       # - name: Deploy to IKS
       #   run: |
