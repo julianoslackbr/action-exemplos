@@ -75,7 +75,7 @@ jobs:
             echo $TESTE
             echo "------------"
             printenv
-            echo "1234123" > file.txt
+            echo "1234123" > file-dev.txt
 
     # deploy hml
     deploy-hml:
