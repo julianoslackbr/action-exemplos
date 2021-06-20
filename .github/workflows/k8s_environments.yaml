@@ -55,19 +55,31 @@ jobs:
     deploy-dev:
       name: Deploy dev
       runs-on: ubuntu-latest
-      environment:
-        name: dev
-        url: "http://dev.teste.teste"
+      # environment:
+      #   name: dev
+      #   url: "http://dev.teste.teste"
       needs: build
 
       env:
-        DB_HOST: ${{ secrets.DB_HOST }} 
-        DB_NAME: ${{ secrets.DB_NAME }} 
-        TESTE: 12345
         SECRETS_CONTEXT: ${{ toJson(secrets) }}
         
 
       steps:
+        environment:
+          name: dev
+          url: "http://dev.teste.teste"
+        - name: Checkout Repository
+          uses: actions/checkout@v2
+          with:
+            repository: 'julianoslackbr/ansible-kubernetes'
+        - name: Create Secrets
+          run: |
+
+            echo $SECRETS_CONTEXT > secrets.json
+            pip3 install pip --upgrade
+            pip3 install kubernetes==11.0.0 openshift==0.11.0
+            pip3 install ansible==2.9
+            ansible-playbook sample-playbook-createvars.yml          
         - name: Run dev deployment 
           run: |
             echo "Deploy DEV"
@@ -80,7 +92,6 @@ jobs:
 
             echo $SECRETS_CONTEXT > file.json
             yq eval -P file.json
-
     # deploy hml
     deploy-hml:
       name: Deploy hml
