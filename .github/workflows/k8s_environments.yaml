@@ -53,7 +53,7 @@ jobs:
           docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":latest
     # deploy dev
     deploy-dev:
-      name: Deploy dev
+      name: Dev Variables
       runs-on: ubuntu-latest
       environment:
         name: dev
@@ -66,29 +66,23 @@ jobs:
 
       steps:
         
-        - name: Checkout Repository
+        - name: Checkout Ansible Repo
           uses: actions/checkout@v2
           with:
             repository: 'julianoslackbr/ansible-kubernetes'
+            path: '.'
         - name: Create Secrets
           run: |
 
             echo $SECRETS_CONTEXT > secrets.json
+            cat secrets.json
+            
             pip3 install pip --upgrade
             pip3 install kubernetes==11.0.0 openshift==0.11.0
             pip3 install ansible==2.9
             ansible-playbook sample-playbook-createvars.yml          
-        - name: Run dev deployment 
-          run: |
-            echo "Deploy DEV"
-            echo $DB_HOST
-            echo $DB_NAME
-            echo $TESTE
-            echo "------------"
-            printenv
-            echo "1234123" > file-dev.txt
 
-            echo $SECRETS_CONTEXT > file.json
+
             yq eval -P file.json
     # deploy hml
     deploy-hml:
