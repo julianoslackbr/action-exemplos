@@ -51,7 +51,7 @@ jobs:
           docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":latest
 
     devSecrets:
-      name: Dev Variables
+      name: Dev Secrets Variables
       runs-on: ubuntu-latest
       environment:
         name: dev
@@ -84,11 +84,10 @@ jobs:
             path: secret-vars-file.yaml      
 
     devKubernets:
-        name: Dev Variables
+        name: Dev Kubernetes Variables
         runs-on: ubuntu-latest
         environment:
-          name: k8s-dev
-          url: "http://dev.teste.teste"
+          name: dev-k8s
         needs: build
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
