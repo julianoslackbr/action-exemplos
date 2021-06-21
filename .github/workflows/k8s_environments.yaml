@@ -55,9 +55,9 @@ jobs:
     deploy-dev:
       name: Deploy dev
       runs-on: ubuntu-latest
-      # environment:
-      #   name: dev
-      #   url: "http://dev.teste.teste"
+      environment:
+        name: dev
+        url: "http://dev.teste.teste"
       needs: build
 
       env:
@@ -65,9 +65,7 @@ jobs:
         
 
       steps:
-        environment:
-          name: dev
-          url: "http://dev.teste.teste"
+        
         - name: Checkout Repository
           uses: actions/checkout@v2
           with:
