@@ -50,18 +50,15 @@ jobs:
           docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":"$GITHUB_SHA"
           docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":latest
 
-    deploy-dev:
+    devSecrets:
       name: Dev Variables
       runs-on: ubuntu-latest
       environment:
         name: dev
         url: "http://dev.teste.teste"
       needs: build
-
       env:
         SECRETS_CONTEXT: ${{ toJson(secrets) }}
-        
-
       steps:
         
         - name: Checkout Ansible Repo
@@ -69,7 +66,7 @@ jobs:
           with:
             repository: 'julianoslackbr/ansible-kubernetes'
             
-        - name: Create Secrets
+        - name: Create Secrets vars
           run: |
 
             echo $SECRETS_CONTEXT > secrets.json
@@ -78,28 +75,68 @@ jobs:
             pip3 install pip --upgrade
             pip3 install kubernetes==11.0.0 openshift==0.11.0
             pip3 install ansible==2.9
-            ansible-playbook sample-playbook-createvars.yml          
+            ansible-playbook sample-playbook-createvars.yml   
+            cat secret-vars-file.yaml
+
+        - uses: actions/upload-artifact@master
+          with:
+            name: secret-vars-file
+            path: secret-vars-file.yaml      
+
+    devKubernets:
+        name: Dev Variables
+        runs-on: ubuntu-latest
+        environment:
+          name: k8s-dev
+          url: "http://dev.teste.teste"
+        needs: build
+        env:
+          SECRETS_CONTEXT: ${{ toJson(secrets) }}
+          container_tag: "$GITHUB_SHA"
+
+        steps:
+          
+          - name: Checkout Ansible Repo
+            uses: actions/checkout@v2
+            with:
+              repository: 'julianoslackbr/ansible-kubernetes'
+              
+          - name: Create Kubernets vars
+            run: |
+
+              echo $SECRETS_CONTEXT > kubernetes.json
+              cat kubernetes.json
+
+              pip3 install pip --upgrade
+              pip3 install kubernetes==11.0.0 openshift==0.11.0
+              pip3 install ansible==2.9
+              ansible-playbook sample-playbook-createvars.yml
+              cat kubernetes-vars-file.yaml
+
+          - uses: actions/upload-artifact@master
+            with:
+              name: kubernetes-vars-file
+              path: kubernetes-vars-file.yaml      
 
 
-            yq eval -P file.json
-    # deploy hml
-    deploy-hml:
-      name: Deploy hml
-      runs-on: ubuntu-latest
-      environment:
-        name: hml
-        url: "http://hml.teste.teste"
-      needs: deploy-dev
+    # # deploy hml
+    # hml:
+    #   name: Hml Variables
+    #   runs-on: ubuntu-latest
+    #   environment:
+    #     name: hml
+    #     url: "http://hml.teste.teste"
+    #   needs: deploy-dev
 
-      steps:
-        - name: Run hml deployment 
-          run: |
-            echo "Deploy HML"
-            echo ${{ secrets.DB_HOST }} > file.txt
-            cat file.txt
-            printenv
-            echo "-------"
-            ls -al
+    #   steps:
+    #     - name: Run hml deployment 
+    #       run: |
+    #         echo "Deploy HML"
+    #         echo ${{ secrets.DB_HOST }} > file.txt
+    #         cat file.txt
+    #         printenv
+    #         echo "-------"
+    #         ls -al
             
   # Deploy the Docker image to the IKS cluster
       # - name: Deploy to IKS
