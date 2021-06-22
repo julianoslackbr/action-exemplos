@@ -152,7 +152,7 @@ jobs:
               pip3 install pip --upgrade
               pip3 install kubernetes==11.0.0 openshift==0.11.0
               pip3 install ansible==2.9
-              ansible-playbook sample-playbook-k8s.yml
+              ansible-playbook sample-playbook-k8s.yml -vvvv
               
               cat ./k8s/*
    
