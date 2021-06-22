@@ -8,17 +8,18 @@ on:
   workflow_dispatch:
 
 # Environment variables available to all jobs and steps in this workflow
-env:
-  GITHUB_SHA: ${{ github.sha }}
-  
-  REGISTRY_HOSTNAME: slackbr
-  IMAGE_NAME: action-demo
-
 jobs:
 
     build:
       name: Build Container
       runs-on: ubuntu-latest
+      environment:
+        name: ci
+      env:
+        GITHUB_SHA: ${{ github.sha }}
+        
+        REGISTRY_HOSTNAME: slackbr
+        IMAGE_NAME: action-demo
       steps:
 
       - name: Checkout Repository
