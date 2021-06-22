@@ -92,7 +92,8 @@ jobs:
         needs: build
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
-          container_tag: "$GITHUB_SHA"
+          container_tag: $GITHUB_SHA
+          TESTE: ${{ github.sha }}
 
         steps:
           
@@ -118,6 +119,40 @@ jobs:
               name: kubernetes-vars-file
               path: kubernetes-vars-file.yaml      
 
+    devDeployment:
+        name: Deploy
+        runs-on: ubuntu-latest
+        environment:
+          name: dev-k8s
+        needs: [ devKubernets, devSecrets ]
+
+        env:
+          SECRETS_CONTEXT: ${{ toJson(secrets) }}
+          container_tag: "$GITHUB_SHA"
+
+        steps:
+          
+          - name: Checkout Ansible Repo
+            uses: actions/checkout@v2
+            with:
+              repository: 'julianoslackbr/ansible-kubernetes'
+              
+          - name: Create Kubernets vars
+            run: |
+
+              echo $SECRETS_CONTEXT > kubernetes.json
+              cat kubernetes.json
+
+              pip3 install pip --upgrade
+              pip3 install kubernetes==11.0.0 openshift==0.11.0
+              pip3 install ansible==2.9
+              ansible-playbook sample-playbook-createvars.yml
+              cat kubernetes-vars-file.yaml
+
+          - uses: actions/upload-artifact@master
+            with:
+              name: kubernetes-vars-file
+              path: kubernetes-vars-file.yaml      
 
     # # deploy hml
     # hml:
