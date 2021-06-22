@@ -141,7 +141,10 @@ jobs:
           - uses: actions/download-artifact@master
             with:
               name: secret-vars-file
-              path: secret-vars-file.yaml   
+              path: secret-vars-file.yaml
+          
+          - name: list files
+            run: ls -alt
               
           - name: Create Manifests
             run: |
