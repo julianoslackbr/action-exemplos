@@ -74,7 +74,9 @@ jobs:
             run:  ansible-playbook sample-playbook-createvars.yml -v
 
           - name: List files
-            run: ls -alt
+            run: |
+              ls -alt
+              cat secrets-vars-file.yaml kubernetes-vars-file.yaml
               
           - name: Create kubernets manifests and deploy
             run: |
