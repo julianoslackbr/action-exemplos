@@ -78,7 +78,7 @@ jobs:
               
           - name: Create kubernets manifests and deploy
             run: |
-              ansible-playbook sample-playbook-k8s.yml -v
+              ansible-playbook sample-playbook-k8s.yml -vvvv
               ls -al ./k8s
               
 
