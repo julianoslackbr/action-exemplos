@@ -73,7 +73,7 @@ jobs:
           - name: Create kubernets vars
             run:  ansible-playbook sample-playbook-createvars.yml -v
             env:
-              TAG: env.GITHUB_SHA
+              TAG: ${{ github.sha }}
 
           - name: List files
             run: |
