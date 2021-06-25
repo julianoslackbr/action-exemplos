@@ -58,7 +58,6 @@ jobs:
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
           GITHUB_SHA: ${{ github.sha }}
-          TAG: "$GITHUB_SHA"
         steps:
           - name: Checkout Ansible Repo
             uses: actions/checkout@v2
@@ -73,6 +72,8 @@ jobs:
 
           - name: Create kubernets vars
             run:  ansible-playbook sample-playbook-createvars.yml -v
+            env:
+              TAG: env.GITHUB_SHA
 
           - name: List files
             run: |
