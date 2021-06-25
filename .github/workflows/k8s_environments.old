@@ -49,18 +49,54 @@ jobs:
       - name: Push the image to Docker container registry
         run: |
           docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":"$GITHUB_SHA"
-          docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":latest        
+          docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":latest
 
-    CreateVariables:
+    devSecrets:
+      name: Dev Secrets Variables
+      runs-on: ubuntu-latest
+      environment:
+        name: dev
+        url: "http://dev.teste.teste"
+      needs: build
+      env:
+        SECRETS_CONTEXT: ${{ toJson(secrets) }}
+      steps:
+        
+        - name: Checkout Ansible Repo
+          uses: actions/checkout@v2
+          with:
+            repository: 'julianoslackbr/ansible-kubernetes'
+            
+        - name: Create Secrets vars
+          run: |
+
+            echo $SECRETS_CONTEXT > secrets.json
+            cat secrets.json
+
+            pip3 install pip --upgrade
+            pip3 install kubernetes==11.0.0 openshift==0.11.0
+            pip3 install ansible==2.9
+            ansible-playbook sample-playbook-createvars.yml   
+            cat secret-vars-file.yaml
+
+        - uses: actions/upload-artifact@master
+          with:
+            name: secret-vars-file
+            path: secret-vars-file.yaml      
+
+    devKubernets:
         name: Dev Kubernetes Variables
         runs-on: ubuntu-latest
         environment:
-          name: dev
+          name: dev-k8s
         needs: build
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
-          TAG: $GITHUB_SHA
+          container_tag: $GITHUB_SHA
+          TESTE: ${{ github.sha }}
+
         steps:
+          
           - name: Checkout Ansible Repo
             uses: actions/checkout@v2
             with:
@@ -69,45 +105,41 @@ jobs:
           - name: Create Kubernets vars
             run: |
 
+              echo $SECRETS_CONTEXT > kubernetes.json
+              cat kubernetes.json
+
               pip3 install pip --upgrade
               pip3 install kubernetes==11.0.0 openshift==0.11.0
               pip3 install ansible==2.9
               ansible-playbook sample-playbook-createvars.yml
+              cat kubernetes-vars-file.yaml
 
-          - name: Upload secret vars file
-            uses: actions/upload-artifact@master
-            with:
-              name: secrets-vars-file
-              path: secrets-vars-file.yaml      
-          
-          - name: Upload kubernetes vars file
-            uses: actions/upload-artifact@master
+          - uses: actions/upload-artifact@master
             with:
               name: kubernetes-vars-file
-              path: kubernetes-vars-file.yaml
+              path: kubernetes-vars-file.yaml      
 
     devDeployment:
         name: Deploy
         runs-on: ubuntu-latest
         environment:
           name: dev-k8s
-        needs: CreateVariables
+        needs: [ devKubernets, devSecrets ]
 
         steps:
+          
           - name: Checkout Ansible Repo
             uses: actions/checkout@v2
             with:
               repository: 'julianoslackbr/ansible-kubernetes'
 
-          - name: Download kubernetes vars file
-            uses: actions/download-artifact@master
+          - uses: actions/download-artifact@master
             with:
               name: kubernetes-vars-file
-          
-          - name: Download secrets vars file
-            uses: actions/download-artifact@master
+
+          - uses: actions/download-artifact@master
             with:
-              name: secrets-vars-file
+              name: secret-vars-file
           
           - name: list files
             run: ls -alt
@@ -118,7 +150,7 @@ jobs:
               pip3 install pip --upgrade
               pip3 install kubernetes==11.0.0 openshift==0.11.0
               pip3 install ansible==2.9
-              ansible-playbook sample-playbook-k8s.yml -v
+              ansible-playbook sample-playbook-k8s.yml -vvvv
               
               cat ./k8s/*
    
