@@ -81,8 +81,6 @@ jobs:
               ansible-playbook sample-playbook-k8s.yml -v
               
               cat ./k8s/*
-   
-
     # # deploy hml
     # hml:
     #   name: Hml Variables
