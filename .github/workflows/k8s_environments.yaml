@@ -7,17 +7,15 @@ on:
 
   workflow_dispatch:
 
-# Environment variables available to all jobs and steps in this workflow
 jobs:
 
-    build:
-      name: Build Container
+    CI:
+      name: Build container
       runs-on: ubuntu-latest
       environment:
         name: ci
       env:
         GITHUB_SHA: ${{ github.sha }}
-        
         REGISTRY_HOSTNAME: slackbr
         IMAGE_NAME: action-demo
       steps:
@@ -25,7 +23,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Login to Docker Hub
+      - name: Docker hub login
         env:
           DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -51,12 +49,12 @@ jobs:
           docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":"$GITHUB_SHA"
           docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":latest        
 
-    CreateVariables:
-        name: Dev Kubernetes Variables
+    CDDEV:
+        name: Dev Deployment
         runs-on: ubuntu-latest
         environment:
           name: dev
-        needs: build
+        needs: CI
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
           TAG: $GITHUB_SHA
@@ -65,59 +63,21 @@ jobs:
             uses: actions/checkout@v2
             with:
               repository: 'julianoslackbr/ansible-kubernetes'
-              
-          - name: Create Kubernets vars
-            run: |
 
+          - name: Install Ansible
+            run: |
               pip3 install pip --upgrade
               pip3 install kubernetes==11.0.0 openshift==0.11.0
               pip3 install ansible==2.9
-              ansible-playbook sample-playbook-createvars.yml
 
-          - name: Upload secret vars file
-            uses: actions/upload-artifact@master
-            with:
-              name: secrets-vars-file
-              path: secrets-vars-file.yaml      
-          
-          - name: Upload kubernetes vars file
-            uses: actions/upload-artifact@master
-            with:
-              name: kubernetes-vars-file
-              path: kubernetes-vars-file.yaml
+          - name: Create kubernets vars
+            run:  ansible-playbook sample-playbook-createvars.yml -v
 
-    devDeployment:
-        name: Deploy
-        runs-on: ubuntu-latest
-        environment:
-          name: dev-k8s
-        needs: CreateVariables
-
-        steps:
-          - name: Checkout Ansible Repo
-            uses: actions/checkout@v2
-            with:
-              repository: 'julianoslackbr/ansible-kubernetes'
-
-          - name: Download kubernetes vars file
-            uses: actions/download-artifact@master
-            with:
-              name: kubernetes-vars-file
-          
-          - name: Download secrets vars file
-            uses: actions/download-artifact@master
-            with:
-              name: secrets-vars-file
-          
-          - name: list files
+          - name: List files
             run: ls -alt
               
-          - name: Create Manifests
+          - name: Create kubernets manifests and deploy
             run: |
-
-              pip3 install pip --upgrade
-              pip3 install kubernetes==11.0.0 openshift==0.11.0
-              pip3 install ansible==2.9
               ansible-playbook sample-playbook-k8s.yml -v
               
               cat ./k8s/*
