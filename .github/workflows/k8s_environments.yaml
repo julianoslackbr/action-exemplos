@@ -57,7 +57,8 @@ jobs:
         needs: CI
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
-          TAG: $GITHUB_SHA
+          GITHUB_SHA: ${{ github.sha }}
+          TAG: "$GITHUB_SHA"
         steps:
           - name: Checkout Ansible Repo
             uses: actions/checkout@v2
