@@ -82,11 +82,11 @@ jobs:
               cat secrets-vars-file.yaml kubernetes-vars-file.yaml
           
           - name: Configure kubeconfig
-          - uses: azure/k8s-set-context@v1
+            uses: azure/k8s-set-context@v1
             with:
               method: service-account
-              k8s-url: secret.K8S_CLUSTER_URL
-              k8s-secret: secret.K8S_CLUSTER_SECRET
+              k8s-url: secrets.K8S_CLUSTER_URL
+              k8s-secret: secrets.K8S_CLUSTER_SECRET
               
           - name: Create kubernets manifests and deploy
             run: |
