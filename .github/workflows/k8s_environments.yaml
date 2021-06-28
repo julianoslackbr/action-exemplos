@@ -85,16 +85,14 @@ jobs:
             uses: azure/k8s-set-context@v1
             with:
               method: service-account
-              k8s-url: secrets.K8S_CLUSTER_URL
-              k8s-secret: secrets.K8S_CLUSTER_SECRET
+              k8s-url: ${{secrets.K8S_CLUSTER_URL}}
+              k8s-secret: ${{secrets.K8S_CLUSTER_SECRET}}
               
           - name: Create kubernets manifests and deploy
             run: |
               ansible-playbook sample-playbook-k8s.yml -vvvv
               ls -al ./k8s
               
-
-
     # # deploy hml
     # hml:
     #   name: Hml Variables
