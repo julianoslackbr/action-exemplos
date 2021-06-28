@@ -59,7 +59,15 @@ jobs:
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
           GITHUB_SHA: ${{ github.sha }}
+        
         steps:
+          - name: Configure kubeconfig
+            uses: azure/k8s-set-context@v1
+            with:
+              method: service-account
+              k8s-url: ${{secrets.K8S_CLUSTER_URL}}
+              k8s-secret: ${{secrets.K8S_CLUSTER_SECRET}}
+                
           - name: Checkout Ansible Repo
             uses: actions/checkout@v2
             with:
@@ -79,19 +87,14 @@ jobs:
           - name: List files
             run: |
               ls -alt
-              cat secrets-vars-file.yaml kubernetes-vars-file.yaml
+              echo "-----"
+              cat secrets-vars-file.yaml 
+              echo echo "-----"
+              cat kubernetes-vars-file.yaml
           
-          - name: Configure kubeconfig
-            uses: azure/k8s-set-context@v1
-            with:
-              method: service-account
-              k8s-url: ${{secrets.K8S_CLUSTER_URL}}
-              k8s-secret: ${{secrets.K8S_CLUSTER_SECRET}}
-              
           - name: Create kubernets manifests and deploy
             run: |
-              ls -al ./k8s/
-              cat ./k8s/*
+              cat 
               ansible-playbook sample-playbook-k8s.yml -v
               
               
