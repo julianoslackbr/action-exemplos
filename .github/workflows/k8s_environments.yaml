@@ -58,17 +58,18 @@ jobs:
         needs: CI
         env:
           SECRETS_CONTEXT: ${{ toJson(secrets) }}
-          GITHUB_SHA: ${{ github.sha }}
-          K8S_URL: ${{secrets.K8S_CLUSTER_URL}}
-          K8S_SECRET: ${{secrets.K8S_CLUSTER_SECRET}}
+
         
         steps:
           - name: Configure kubeconfig
             uses: azure/k8s-set-context@v1
             with:
               method: service-account
-              k8s-url: "$K8S_URL"
-              k8s-secret: "$K8S_SECRET"
+              k8s-url: ${{ env.K8S_URL }}
+              k8s-secret: ${{ env.K8S_SECRET }}
+            env:
+              K8S_URL: ${{secrets.K8S_CLUSTER_URL}}
+              K8S_SECRET: ${{secrets.K8S_CLUSTER_SECRET}}
                 
           - name: Checkout Ansible Repo
             uses: actions/checkout@v2
