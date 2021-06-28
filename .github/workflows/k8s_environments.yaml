@@ -12,7 +12,7 @@ jobs:
     CI:
       name: Build container
       #runs-on: ubuntu-latest
-      run-on: self-hosted 
+      runs-on: self-hosted 
       environment:
         name: ci
       env:
