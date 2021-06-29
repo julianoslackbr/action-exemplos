@@ -67,6 +67,8 @@ jobs:
               method: service-account
               k8s-url: ${{ env.K8S_URL }}
               k8s-secret: ${{ env.K8S_SECRET }}
+              cluster-type: generic
+            id: setcontext
             env:
               K8S_URL: ${{secrets.K8S_CLUSTER_URL}}
               K8S_SECRET: ${{secrets.K8S_CLUSTER_SECRET}}
@@ -97,8 +99,7 @@ jobs:
           
           - name: Create kubernets manifests and deploy
             run: |
-              cat 
-              ansible-playbook sample-playbook-k8s.yml -v
+              ansible-playbook sample-playbook-k8s.yml -vvv
               
               
     # # deploy hml
