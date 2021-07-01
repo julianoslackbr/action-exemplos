@@ -93,6 +93,7 @@ jobs:
             run: |
               curl -LO https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
               tar xf kubeval-linux-amd64.tar.gz -C /usr/local/bin/
+              ln -s /usr/local/bin/kubeval /usr/bin/kubeval
               chmod +x /usr/local/bin/kubeval
 
           - name: Running kubeval test tool
