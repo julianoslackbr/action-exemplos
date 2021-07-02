@@ -100,7 +100,7 @@ jobs:
               for files in $(find ./k8s -type f); do
                 /usr/local/bin/kubeval $files
                 test $? -ne 0 && exit 1
-              end
+              done
 
           - name: Create kubernets manifests and deploy
             run: ansible-playbook sample-playbook-k8s.yml -v --tags=apply
