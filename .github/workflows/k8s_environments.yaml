@@ -11,8 +11,8 @@ jobs:
 
     CI:
       name: Build container
-      runs-on: ubuntu-latest
-      #runs-on: self-hosted 
+      #runs-on: ubuntu-latest
+      runs-on: self-hosted 
       environment:
         name: ci
       env:
@@ -52,8 +52,8 @@ jobs:
 
     CDDEV:
         name: Dev Deployment
-        runs-on: ubuntu-latest
-        #runs-on: self-hosted
+        #runs-on: ubuntu-latest
+        runs-on: self-hosted
         environment:
           name: dev
         needs: CI
@@ -92,14 +92,13 @@ jobs:
           - name: Install kubeval test tool
             run: |
               curl -LO https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
-              tar xf kubeval-linux-amd64.tar.gz -C /usr/local/bin/
-              ln -s /usr/local/bin/kubeval /usr/bin/kubeval
+              tar xzf kubeval-linux-amd64.tar.gz -C /usr/local/bin/
               chmod +x /usr/local/bin/kubeval
 
           - name: Running kubeval test tool
             run: |
               for files in $(find ./k8s -type f); do
-                kubeval $files
+                /usr/local/bin/kubeval $files
                 test $? -ne 0 && exit 1
               end
 
