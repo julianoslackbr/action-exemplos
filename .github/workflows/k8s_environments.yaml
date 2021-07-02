@@ -103,4 +103,4 @@ jobs:
               done
 
           - name: Create kubernets manifests and deploy
-            run: ansible-playbook sample-playbook-k8s.yml -v --extra-vars "deployment=true"
+            run: ansible-playbook sample-playbook-k8s.yml -v --extra-vars "deploy=true"
