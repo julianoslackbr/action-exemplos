@@ -11,5 +11,10 @@ def main():
 
   return str(a)
 
+@app.route('/health', methods=['GET'])
+def health():
+  
+  return "oi"
+
 if __name__ == '__main__':
   app.run(debug=True, host='0.0.0.0', port=5000 )
