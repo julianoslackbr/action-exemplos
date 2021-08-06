@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - dev
-
   workflow_dispatch:
 
 jobs:
@@ -19,36 +18,44 @@ jobs:
         GITHUB_SHA: ${{ github.sha }}
         REGISTRY_HOSTNAME: slackbr
         IMAGE_NAME: action-demo
+      
+      outputs:
+        SHORT_SHA: ${{ steps.shortSha.outputs.SHORT_SHA }}
+
       steps:
 
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Docker hub login
-        run: |
-          echo $DOCKER_PASSWORD | docker login -u $DOCKER_LOGIN --password-stdin
-        env:
-          DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_LOGIN }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+        if: steps.test.outputs.exit_code == 0
 
       - name: Set Github Short SHA
+        id: shortSha
         run: |
-          GITHUB_SHORT_SHA=$(echo "$GITHUB_SHA"|cut -c-5)
-          export GITHUB_SHORT_SHA
-          echo $GITHUB_SHORT_SHA
+          GITHUB_SHORT_SHA=$(echo "$GITHUB_SHA"|cut -c-7)
+          echo "::set-output name=SHORT_SHA::${GITHUB_SHORT_SHA}"
+        if: steps.test.outputs.exit_code == 0
       
       - name: Build Docker image
         run: |
-          #echo $GITHUB_SHORT_SHA
-          docker build --file Dockerfile -t "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":"$GITHUB_SHA" \
-            --build-arg GITHUB_SHA="$GITHUB_SHA" \
-            --build-arg GITHUB_REF="$GITHUB_REF" .
-          docker tag "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":"$GITHUB_SHA" "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":latest
+          docker build --file Dockerfile -t "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":${{ env.TAG }} .
+          docker tag "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":${{ env.TAG }} "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":latest
+        env:
+          TAG: ${{ steps.shortSha.outputs.SHORT_SHA }}
+        if: steps.test.outputs.exit_code == 0
           
-      - name: Push the image to Docker container registry
+      - name: Push the image to docker container registry
         run: |
-          docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":"$GITHUB_SHA"
-          docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":latest        
+          docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":${{ env.TAG }}
+          docker push "$REGISTRY_HOSTNAME"/"$IMAGE_NAME":latest
+        env:
+          TAG: ${{ steps.shortSha.outputs.SHORT_SHA }}
+        if: steps.test.outputs.exit_code == 0     
 
     CDDEV:
         name: Dev Deployment
@@ -84,9 +91,9 @@ jobs:
           - name: Create kubernets vars
             run:  ansible-playbook sample-playbook-createvars.yml -v
             env:
-              TAG: ${{ github.sha }}
+              TAG: ${{ needs.CI.outputs.SHORT_SHA }}
 
-          - name: Create kubernets manifests and deploy
+          - name: Create kubernets manifests
             run: ansible-playbook sample-playbook-k8s.yml -v 
 
           - name: Install kubeval test tool
@@ -102,5 +109,5 @@ jobs:
                 #test $? -ne 0 && exit 1
               done
 
-          - name: Create kubernets manifests and deploy
+          - name: Deploy kubernetes
             run: ansible-playbook sample-playbook-k8s.yml -v --extra-vars "deploy=true"
